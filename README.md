@@ -1,4 +1,4 @@
-# Spike Ship
+# SpikeShip
 ## Fast, unsupervised discovery of high-dimensional neural spiking patterns based on optimal transport 
 ## theory
 A Python 3 module called `spikeship` which implements the Fast, unsupervised discovery of high-dimensional 
