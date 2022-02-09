@@ -12,13 +12,20 @@ install`. A jupyter notebook is available in `notebooks/`, along with a demo dat
 workflow for the SPOTDisClust method.
 
 ### Linux (Anaconda)
-1) `conda create -n spikeship python=3` 1) `./env_setup.sh spikeship` 1) `source activate spikeship` 1) 
-`python setup.py install`
+1) `conda create -n spikeship python=3` 
+2) `./env_setup.sh spikeship` 
+3) `source activate spikeship` 
+4) `python setup.py install`
 
 ### Windows (Anaconda)
-1) `conda create -n spikeship python=3` 1) `conda activate spikeship` 1) `conda install python=3.6.5` 1) 
-`conda install -c conda-forge hdbscan=0.8.13=py36_0` 1) `conda install numba` 1) `conda install ipykernel` 
-1) `conda install matplotlib` 1) `python setup.py install`
+1) `conda create -n spikeship python=3`
+2) `conda activate spikeship`
+3) `conda install python=3.6.5` 
+4) `conda install -c conda-forge hdbscan=0.8.13=py36_0` 
+5) `conda install numba` 
+6) `conda install ipykernel` 
+7) `conda install matplotlib` 
+8) `python setup.py install`
 
 ## Further notes
 The software requirements/dependencies are the same from the work ![SPOTDis](https://github.com/LGro/spot), 
