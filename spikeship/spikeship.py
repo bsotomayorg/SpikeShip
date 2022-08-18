@@ -329,8 +329,6 @@ def distances(spike_times, ii_spike_times, num_threads=-1):
 	-------
 	f : numpy.ndarray
 		MxM f distances (neuron-specific shifts) matrix with numpy.nan for unknown distances
-	G : numpy.ndarray
-		MxM G distances (global optimal shift) matrix with numpy.nan for unknown distances
 	"""
 
 	if spike_times.ndim != 1: #First argument must be longer than or equally long as second
@@ -345,8 +343,6 @@ def distances(spike_times, ii_spike_times, num_threads=-1):
 		dtype=int)
 
 	set_nthreads(num_threads)
-
-	f = distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs)
 	
-	return f
+	return distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs)
 
