@@ -8,19 +8,15 @@ import itertools
 import spikeship.tools as tools
 
 
-# Debug
-import sys
-import time
-
 from numba import int8, int16,int32, int64, float32, vectorize, cuda, njit
 
 # --- General Tools --- #
 
-@njit(cache=True)
+@njit(nopython=True, cache=True)
 def signature_emd_ss(x, y):
 	"""
 	Computation of length of spike times between two pair of epochs e1 and e2. 
-	It is compiled by jit.
+	Compiled by Numba JIT.
 
 	Parameters
 	----------
@@ -57,7 +53,7 @@ def signature_emd_ss(x, y):
 		w_x = R # = Q*R/Q
 		w_y = Q # = Q*R/R
 
-		n_flow = n_flows(Q,R)
+		n_flow = _n_flows(Q,R)
 		emd = np.zeros((2,n_flow))
 		#w   = np.zeros(n_flow)
 		q = 0
@@ -101,7 +97,7 @@ def signature_emd_ss(x, y):
 def get_Flows(ii_spike_times_e1, ii_spike_times_e2, spike_times ):
 	"""
 		Computation of flow for spike times between two pair of neurons. 
-		It is compiled by jit.
+		Compiled by Numba JIT.
 
 		Parameters
 		----------
@@ -125,7 +121,6 @@ def get_Flows(ii_spike_times_e1, ii_spike_times_e2, spike_times ):
 		
 		if ((ii_spike_times_e1[ii][1]-ii_spike_times_e1[ii][0] == 0) or (ii_spike_times_e2[ii][1]-ii_spike_times_e2[ii][0] == 0)):
 			w_array[ii] = 0
-			if DEBUG: print ("span", 0)
 		else:
 			len_st_e1 = np.int64(ii_spike_times_e1[ii][1]-ii_spike_times_e1[ii][0])
 			len_st_e2 = np.int64(ii_spike_times_e2[ii][1]-ii_spike_times_e2[ii][0])
@@ -133,14 +128,12 @@ def get_Flows(ii_spike_times_e1, ii_spike_times_e2, spike_times ):
 			span = len_st_e1
 			if len_st_e1 != len_st_e2:
 				if len_st_e1 < len_st_e2:
-					span = n_flows(len_st_e1, len_st_e2)
+					span = _n_flows(len_st_e1, len_st_e2)
 				else:
-					span = n_flows(len_st_e2, len_st_e1)
+					span = _n_flows(len_st_e2, len_st_e1)
 
 			w_array[ii] = span
-			if DEBUG: print ("span", span)
 	
-	if DEBUG: print ("w_array", w_array)
 	
 	# N: number of channels or neurons
 	N = ii_spike_times_e1.shape[0]
@@ -168,13 +161,13 @@ def get_Flows(ii_spike_times_e1, ii_spike_times_e2, spike_times ):
 			len_st2 = len(st2)
 			if len(st1) != len(st2):
 				if len_st1 > len_st2:
-					span = n_flows(len_st1, len_st2)
+					span = _n_flows(len_st1, len_st2)
 					c_temp = signature_emd_ss(st1, st2)
 					span = len(c_temp[1])
 					C[i_start:(i_start+span)] = c_temp[0]
 					W[i_start:(i_start+span)] = c_temp[1] / (len_st1 * len_st2)
 				else:
-					span = n_flows(len_st2, len_st1)
+					span = _n_flows(len_st2, len_st1)
 					c_temp = signature_emd_ss(st2, st1)
 					span = len(c_temp[1])
 					C[i_start:(i_start+span)] = -c_temp[0] 
@@ -197,19 +190,18 @@ def get_Flows(ii_spike_times_e1, ii_spike_times_e2, spike_times ):
 	W = W[:i_start]
 
 	# computation of D
-	if areAllOnes(w_array): # single spike patterns
+	if _areAllOnes(w_array): # single spike patterns
 		g = np.median(C)
 	else:
 		if np.sum(W)>0:     # multi-spike patterns
 			g = tools.weighted_median_(x=C,w=W)
-			if DEBUG: print ("[DBUG] new : weighted median: ", g)
 		else: # it ocurrs when two epochs do not have flow because one of the is spikeless
 			g = np.nan #0.
 
 	return (C - g), W, g, c_active_neurons
 
 @jit(nopython=True, cache=True)
-def areAllOnes(arr):
+def _areAllOnes(arr):
 	for idx in range(len(arr)):
 		if (arr[idx] != 1):
 			return False
@@ -219,7 +211,7 @@ def areAllOnes(arr):
 def distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs):
 	"""
 	Computation of length of spike times between two pair of epochs. 
-	Compiled by numba.jit.
+	Compiled by Numba JIT.
 
 	Parameters
 	----------
@@ -241,7 +233,6 @@ def distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs):
 	n_epoch_index_pairs = epoch_index_pairs.shape[0]
 
 	ss_distances = np.full((n_epochs, n_epochs), np.nan)
-	G = np.full((n_epochs, n_epochs), np.nan)
 
 	for i in prange(n_epoch_index_pairs): # O(M^2)
 		e1 = epoch_index_pairs[i,0]
@@ -260,18 +251,16 @@ def distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs):
 		else: # normal case
 			ss_distances[e1][e2] = SpikeShip_value(F=F, W=W, N=c_active_neurons) # O(N)
 			ss_distances[e2][e1] = ss_distances[e1][e2]
-		G[e1][e2] = g
-		G[e2][e1] = g
 		
 	np.fill_diagonal(ss_distances, 0)
-	np.fill_diagonal(G, 0)
 
-	return ss_distances, G
+	return ss_distances
 
 @jit(int32(int32, int32))
-def n_flows(X,Y):	
+def _n_flows(X,Y):	
 	"""
 	Computation of number of iterations for EMD's algorithm for spike times between two epochs.
+	Compiled by Numba JIT.
 
 	Parameters
 	----------
@@ -287,12 +276,26 @@ def n_flows(X,Y):
 	"""
 	return int(X+Y-1)
 
+
+# --- Numba utils --- #
+
+def set_nthreads(num_threads):
+	if num_threads != -1:
+		if num_threads > numba.config.NUMBA_DEFAULT_NUM_THREADS:
+			raise AttributeError('The number of threads exceeds the number of cores.')
+		numba.set_num_threads(num_threads)
+
+def get_num_threads():
+	return numba.get_num_threads()
+
+
 # --- SpikeShip Normalization --- #
 
 @jit(nopython=True, cache=True)
 def SpikeShip_value(F, W, N):
 	"""
-	Computation of Fast Spike Pattern Optimal Trasport Distance
+	Computation of Fast Spike Pattern Optimal Trasport Distance.
+	Compiled by Numba JIT.
 
 	Parameters
 	----------
@@ -309,8 +312,9 @@ def SpikeShip_value(F, W, N):
 		return np.nan
 	return (((7.)/(10.* (N-1.)))*np.sum(np.absolute(W*F))) # (single spike case)
 
-def distances(spike_times, ii_spike_times, mode='parallel', w_len=-1., num_threads=-1):
-	"""Compute temporal distances based on various versions of the SPOTDis, using CPU parallelization.
+def distances(spike_times, ii_spike_times, num_threads=-1):
+	"""
+	Computation temporal distances based on current version of the SPOTDis, using CPU parallelization.
 
 	Parameters
 	----------
@@ -326,7 +330,7 @@ def distances(spike_times, ii_spike_times, mode='parallel', w_len=-1., num_threa
 	f : numpy.ndarray
 		MxM f distances (neuron-specific shifts) matrix with numpy.nan for unknown distances
 	G : numpy.ndarray
-			MxM G distances (global optimal shift) matrix with numpy.nan for unknown Distances
+		MxM G distances (global optimal shift) matrix with numpy.nan for unknown distances
 	"""
 
 	if spike_times.ndim != 1: #First argument must be longer than or equally long as second
@@ -342,23 +346,7 @@ def distances(spike_times, ii_spike_times, mode='parallel', w_len=-1., num_threa
 
 	set_nthreads(num_threads)
 
-	# computing SpikeShip
-	if mode == 'parallel':
-		f, G = distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs)
-	# Otherwise, raise exception
-	else:
-		raise NotImplementedError('Metric "{}" unavailable, check doc-string for alternatives.'.format(
-			metric))
-	return f, G
+	f = distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs)
+	
+	return f
 
-def set_nthreads(num_threads):
-	if num_threads != -1:
-		if num_threads > numba.config.NUMBA_DEFAULT_NUM_THREADS:
-			raise AttributeError('The number of threads exceeds the number of cores.')
-		numba.set_num_threads(num_threads)
-		
-def get_num_threads():
-	return numba.get_num_threads()
-
-#if __name__ == '__main__':
-#	cc.compile()
