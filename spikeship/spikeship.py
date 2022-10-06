@@ -63,9 +63,6 @@ def signature_emd_ss(x, y):
 		c = 0
 		while c < n_flow and q < Q:
 			if w_x <= w_y:
-				## bsotomayor aug 26 print ("\tc =",c,"cost:",(x[q] - y[r]),"w_x",w_x,"q",q,"r",r,"x[q]",x[q],"y[r]",y[r])
-				#cost = w_x * (x[q] - y[r])
-				#print ("    ",st1[i], "-", st2[j], "=", (st1[i] - st2[j]))
 				cost = (x[q] - y[r])
 				w_y -= w_x
 				emd[1][c] = w_x
@@ -76,8 +73,6 @@ def signature_emd_ss(x, y):
 					w_y = Q
 					r += 1
 			else:
-				## bsotomayor aug 26 print ("\tc =",c,"cost:",(x[q] - y[r]),"w_y",w_y,"q",q,"r",r,"x[q]",x[q],"y[r]",y[r])
-				#cost = w_y * (x[q] - y[r])
 				cost = (x[q] - y[r])
 				w_x -= w_y
 				emd[1][c] = w_y
@@ -239,7 +234,7 @@ def distances_SpikeShip(ii_spike_times, spike_times, epoch_index_pairs):
 		e2 = epoch_index_pairs[i,1]
 
 		# compute F vector		
-		F, W, g, c_active_neurons = get_Flows( # O(N lcm(n)^2)
+		F, W, g, c_active_neurons = get_Flows( # O(N)
 			ii_spike_times_e1 = ii_spike_times[e1],
 			ii_spike_times_e2 = ii_spike_times[e2],
 			spike_times       = spike_times
