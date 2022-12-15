@@ -1,6 +1,6 @@
 # SpikeShip: A method for fast, unsupervised discovery of high-dimensional neural spiking patterns.
 
-A Python 3 module called `spikeship` which implements the fast, unsupervised discovery of high-dimensional neural spiking patterns based on optimal transport theory described in Sotomayor-Gómez, B., L., Battaglia, F. and Vinck, M. (2021). "SpikeShip: A method for fast, unsupervised discovery of high-dimensional neural spiking patterns". *Bioarxiv*.
+A Python 3 module called `spikeship` which implements the fast, unsupervised discovery of high-dimensional neural spiking patterns based on optimal transport theory described in Sotomayor-Gómez, B., L., Battaglia, F. and Vinck, M. (2022). "SpikeShip: A method for fast, unsupervised discovery of high-dimensional neural spiking patterns". *Bioarxiv*. ![Biorxiv article](https://www.biorxiv.org/content/10.1101/2020.06.03.131573v3).
 
 ## Setup
 The dependencies can be installed by running `./env_setup.sh <ENV_NAME>` with the optional argument specifying the target environment (which must be source-able). To setup the module, run `python setup.py install`. A jupyter notebook is available in `notebooks/`, along with a demo dataset, showing an example workflow for the SpikeShip methods and its comparison with SPOTDis.
