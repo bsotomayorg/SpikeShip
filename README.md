@@ -1,6 +1,6 @@
 # SpikeShip: A method for fast, unsupervised discovery of high-dimensional neural spiking patterns.
 
-A Python 3 module called `spikeship` which implements the fast, unsupervised discovery of high-dimensional neural spiking patterns based on optimal transport theory described in Sotomayor-Gómez, B., L., Battaglia, F. and Vinck, M. (2023). "SpikeShip: A method for fast, unsupervised discovery of high-dimensional neural spiking patterns". [Article](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011335), *PLoS CB*.
+The Python 3 module `spikeship` which implements the fast, unsupervised dissimilarity measure described in Sotomayor-Gómez, B., L., Battaglia, F. and Vinck, M. (2023). "SpikeShip: A method for fast, unsupervised discovery of high-dimensional neural spiking patterns". [Article](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011335), *PLoS CB*.
 
 ## Setup
 The dependencies can be installed by running `./env_setup.sh <ENV_NAME>` with the optional argument specifying the target environment (which must be source-able). To setup the module, run `python setup.py install`. A jupyter notebook is available in `notebooks/`, along with a demo dataset, showing an example workflow for the SpikeShip methods and its comparison with SPOTDis.
