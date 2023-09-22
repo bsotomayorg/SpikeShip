@@ -14,7 +14,7 @@ The dependencies can be installed by running `./env_setup.sh <ENV_NAME>` with th
 ### Windows (Anaconda)
 1) `conda create -n spikeship python=3.6.5`
 1) `conda activate spikeship`
-1) `conda install -c conda-forge hdbscan=0.8.13=py36_0` 
+<!-- 1) `conda install -c conda-forge hdbscan=0.8.13=py36_0` --> 
 1) `conda install numba`
 1) `conda install ipykernel`
 1) `conda install matplotlib`
